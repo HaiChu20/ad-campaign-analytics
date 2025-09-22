@@ -1,0 +1,9 @@
+# Google Cloud Credentials
+keys/*.json
+
+# Airflow Database & Logs
+data/*.db
+logs/*
+
+# Python Cache
+__pycache__/

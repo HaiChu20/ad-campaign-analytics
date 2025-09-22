@@ -1,0 +1,12 @@
+ad_campaign_project:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      keyfile: /opt/airflow/keys/gcp-service-account.json
+      project: your-gcp-project-id-here
+      dataset: your-dataset-here
+      location: US
+      threads: 4
+      timeout_seconds: 300
