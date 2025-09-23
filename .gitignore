@@ -4,6 +4,9 @@ keys/*.json
 # Airflow Database & Logs
 data/*.db
 logs/*
+dbt/.user.yml
+dbt/target/
+dags/__pycache__/
 
 # Python Cache
 __pycache__/
