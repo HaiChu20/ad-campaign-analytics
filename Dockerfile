@@ -12,9 +12,6 @@ COPY pyproject.toml /pyproject.toml
 RUN uv pip compile /pyproject.toml -o /requirements.txt && \
     uv pip install --system --no-cache -r /requirements.txt
 
-# Switch back to airflow user
-USER airflow
-
 # Set environment variables
 ENV AIRFLOW_HOME=/opt/airflow
 ENV DBT_PROFILES_DIR=/opt/dbt
