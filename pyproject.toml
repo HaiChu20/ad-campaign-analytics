@@ -1,0 +1,9 @@
+[project]
+name = "ad-campaign-analytics"
+version = "0.1.0"
+description = "Ad Campaign Analytics with Airflow and dbt"
+requires-python = ">=3.10"
+dependencies = [
+    "dbt-core==1.10.11",
+    "dbt-bigquery==1.10.0",
+]
