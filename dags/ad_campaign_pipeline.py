@@ -35,14 +35,9 @@ def read_sql_file(file_path):
     with open(file_path, 'r') as f:
         return f.read()
 
-setup_tables = BigQueryInsertJobOperator(
-    task_id='setup_tables',
-    configuration={
-        "query": {
-            "query": read_sql_file('/opt/airflow/bigquery/01_create_dataset.sql'),
-            "useLegacySql": False,
-        }
-    },
+setup_dataset = BigQueryInsertJobOperator(
+    task_id='setup_dataset',
+    dataset_id='ad_campaign_raw',
     dag=dag,
 )
 
@@ -54,4 +49,4 @@ load_kaggle_task = PythonOperator(
 
 
 # Set task dependencies
-setup_tables >> load_kaggle_task
+setup_dataset >> load_kaggle_task

@@ -4,9 +4,9 @@ ad_campaign_project:
     dev:
       type: bigquery
       method: service-account
-      keyfile: /opt/airflow/keys/gcp-service-account.json
-      project: hopeful-vine-464619-u5
-      dataset: advertisement
+      keyfile: /keys/gcp-service-account.json
+      project: 
+      dataset: 
       location: US
       threads: 4
       timeout_seconds: 300
