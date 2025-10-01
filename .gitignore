@@ -6,6 +6,7 @@ data/*.db
 logs/*
 dbt/.user.yml
 dbt/target/
+dbt/logs/
 dags/__pycache__/
 
 # Python Cache
