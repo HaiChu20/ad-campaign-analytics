@@ -1,0 +1,46 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw data schema containing uncleaned ad platform tables"
+    database: gleaming-orbit-472617-g7    
+    schema: advertisement                 
+    tables:
+      - name: raw_advertisement
+        description: "Raw Facebook Ads data ingested from CSV"
+        columns:
+          - name: ad_id
+            description: "Unique identifier for each ad"
+            tests:
+              - not_null
+              - unique
+          - name: reporting_start
+            description: "Start date of reporting period (string in raw)"
+            tests:
+              - not_null
+          - name: reporting_end
+            description: "End date of reporting period (string in raw)"
+            tests:
+              - not_null
+          - name: campaign_id
+            description: "Campaign identifier (may be null/misaligned)"
+          - name: fb_campaign_id
+            description: "Facebook campaign identifier (may be null/misaligned)"
+          - name: age
+            description: "Target age group (may slip into wrong column)"
+          - name: gender
+            description: "Target gender"
+          - name: impressions
+            description: "Number of ad impressions"
+          - name: clicks
+            description: "Number of clicks"
+          - name: spent
+            description: "Spend amount in USD"
+          - name: total_conversion
+            description: "Total number of conversions"
+          - name: approved_conversion
+            description: "Number of approved conversions"
+
+        freshness:
+          warn_after: {count: 3, period: day}
+          error_after: {count: 7, period: day}
