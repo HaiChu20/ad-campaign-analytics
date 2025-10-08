@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: int_campaign_performance
+    description: "Campaign-level performance aggregation with key metrics and performance indicators"
+    columns:
+      - name: campaign_id
+        description: "Campaign identifier (composite key for grouping)"
+        data_tests:
+          - not_null
+      - name: total_ads
+        description: "Total number of ads in the campaign"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: total_impressions
+        description: "Total impressions across all ads"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: total_clicks
+        description: "Total clicks across all ads"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: total_spent
+        description: "Total amount spent on the campaign"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: overall_ctr
+        description: "Overall click-through rate for the campaign"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
+      - name: overall_cpc
+        description: "Overall cost per click for the campaign (may be null if no clicks)"
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: overall_conversion_rate
+        description: "Overall conversion rate for the campaign (may be null if no clicks)"
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 2
+                inclusive: true
