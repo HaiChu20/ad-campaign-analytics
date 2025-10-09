@@ -40,8 +40,8 @@ models:
               arguments:
                 min_value: 0
                 inclusive: true
-      - name: overall_ctr
-        description: "Overall click-through rate for the campaign"
+      - name: avg_ctr
+        description: "Average click-through rate for the campaign"
         data_tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -49,15 +49,15 @@ models:
                 min_value: 0
                 max_value: 1
                 inclusive: true
-      - name: overall_cpc
-        description: "Overall cost per click for the campaign (may be null if no clicks)"
+      - name: avg_cpc
+        description: "Average cost per click for the campaign (may be null if no clicks)"
         data_tests:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
                 inclusive: true
-      - name: overall_conversion_rate
-        description: "Overall conversion rate for the campaign (may be null if no clicks)"
+      - name: avg_conversion_rate
+        description: "Average conversion rate for the campaign (may be null if no clicks)"
         data_tests:
           - dbt_utils.accepted_range:
               arguments:
