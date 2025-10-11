@@ -1,0 +1,379 @@
+version: 2
+
+models:
+  - name: mart_daily_performance
+    description: "Comprehensive daily performance mart combining gender-specific and overall daily performance with monthly benchmarks and optimization recommendations"
+    columns:
+      # Date dimensions
+      - name: day_of_month
+        description: "Day of the month (1-31)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 31
+                inclusive: true
+      - name: month
+        description: "Month of the year (1-12)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 12
+                inclusive: true
+      - name: year
+        description: "Year"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 2015
+                max_value: 2030
+                inclusive: true
+      - name: day_of_week
+        description: "Day of the week (1=Sunday, 7=Saturday)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 7
+                inclusive: true
+      - name: day_name
+        description: "Name of the day of the week"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+      
+      # Gender dimension
+      - name: gender
+        description: "Gender of the target audience (M/F) or null for overall performance"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['M', 'F', null]
+      
+      # Core metrics
+      - name: total_ads
+        description: "Total number of ads for this day/gender combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: total_campaigns
+        description: "Total number of campaigns for this day/gender combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: total_impressions
+        description: "Total impressions for this day/gender combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: total_clicks
+        description: "Total clicks for this day/gender combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: total_spent
+        description: "Total amount spent for this day/gender combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: total_conversions
+        description: "Total conversions for this day/gender combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: approved_conversions
+        description: "Approved conversions for this day/gender combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      
+      # Performance metrics
+      - name: avg_ctr
+        description: "Average click-through rate for this day/gender combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
+      - name: avg_cpc
+        description: "Average cost per click for this day/gender combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: avg_cpm
+        description: "Average cost per 1000 impressions for this day/gender combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: avg_conversion_rate
+        description: "Average conversion rate for this day/gender combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 2
+                inclusive: true
+      - name: avg_approval_rate
+        description: "Average approval rate for this day/gender combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
+      
+      # Efficiency metrics
+      - name: conversions_per_dollar
+        description: "Number of conversions per dollar spent"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: cost_per_conversion
+        description: "Cost per conversion"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      
+      # Performance categories
+      - name: ctr_performance
+        description: "CTR performance category (High/Medium/Low CTR Day)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['High CTR Day', 'Medium CTR Day', 'Low CTR Day']
+      - name: conversion_performance
+        description: "Conversion performance category (High/Medium/Low Conversion Day)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['High Conversion Day', 'Medium Conversion Day', 'Low Conversion Day']
+      - name: efficiency_performance
+        description: "Efficiency performance category (High/Medium/Low Efficiency Day, null for overall daily data)"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['High Efficiency Day', 'Medium Efficiency Day', 'Low Efficiency Day', null]
+      
+      # Rankings
+      - name: ctr_rank
+        description: "Overall ranking by CTR performance (1 = best day overall)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: conversion_rank
+        description: "Overall ranking by conversion rate performance (1 = best day overall)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: efficiency_rank
+        description: "Overall ranking by efficiency performance (1 = best day overall)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      
+      # Gender-specific rankings
+      - name: gender_ctr_rank_in_day
+        description: "Gender ranking within the day by CTR (1 = best gender for that day, null for overall)"
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 2
+                inclusive: true
+      - name: gender_conversion_rank_in_day
+        description: "Gender ranking within the day by conversion rate (1 = best gender for that day, null for overall)"
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 2
+                inclusive: true
+      - name: gender_efficiency_rank_in_day
+        description: "Gender ranking within the day by efficiency (1 = best gender for that day, null for overall)"
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 2
+                inclusive: true
+      
+      # Performance comparisons
+      - name: gender_vs_overall_ctr
+        description: "How this gender performs vs overall day CTR (Above/Below/Average, null for overall)"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Above Average CTR', 'Below Average CTR', 'Average CTR', null]
+      - name: gender_vs_overall_conversion
+        description: "How this gender performs vs overall day conversion (Above/Below/Average, null for overall)"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Above Average Conversion', 'Below Average Conversion', 'Average Conversion', null]
+      - name: gender_vs_overall_efficiency
+        description: "How this gender performs vs overall day efficiency (Above/Below/Average, null for overall)"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Above Average Efficiency', 'Below Average Efficiency', 'Average Efficiency', null]
+      
+      # Data granularity
+      - name: data_granularity
+        description: "Indicates whether this row contains gender-specific or overall daily data"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['gender_specific', 'overall_daily']
+      
+      # Monthly context
+      - name: monthly_total_ads
+        description: "Total ads for the entire month"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: monthly_avg_ctr
+        description: "Monthly average CTR for benchmarking"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
+      - name: monthly_avg_conversion_rate
+        description: "Monthly average conversion rate for benchmarking"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 2
+                inclusive: true
+      
+      # Performance vs monthly benchmarks
+      - name: ctr_vs_monthly_avg
+        description: "How this day's CTR compares to the monthly average"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Above Monthly Average', 'Below Monthly Average', 'At Monthly Average']
+      - name: conversion_vs_monthly_avg
+        description: "How this day's conversion rate compares to the monthly average"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Above Monthly Average', 'Below Monthly Average', 'At Monthly Average']
+      - name: efficiency_vs_monthly_avg
+        description: "How this day's efficiency compares to the monthly average"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Above Monthly Average', 'Below Monthly Average', 'At Monthly Average']
+      
+      # Day type analysis
+      - name: day_type
+        description: "Whether this is a weekend or weekday"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Weekend', 'Weekday']
+      
+      # Overall performance tier
+      - name: overall_performance_tier
+        description: "Overall performance tier based on multiple metrics"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Tier 1 - Excellent', 'Tier 2 - Good', 'Tier 3 - Average', 'Tier 4 - Poor']
+      
+      # Optimization recommendations
+      - name: optimization_recommendation
+        description: "AI-generated optimization recommendation based on performance patterns"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Increase Budget', 'Reduce Budget', 'Optimize Landing Page', 'Improve Ad Creative', 'Monitor Performance']
+
+    # Model-level tests
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - day_of_month
+              - month
+              - year
+              - gender
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "total_clicks <= total_impressions"
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "approved_conversions <= total_conversions"
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "total_spent >= 0"
