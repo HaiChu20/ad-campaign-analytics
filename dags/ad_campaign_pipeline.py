@@ -35,10 +35,11 @@ def read_sql_file(file_path):
     with open(file_path, 'r') as f:
         return f.read()
 
-setup_dataset = BigQueryInsertJobOperator(
+setup_dataset = BigQueryCreateEmptyDatasetOperator(
     task_id='setup_dataset',
     dataset_id='ad_campaign_raw',
-    dag=dag,
+    exists_ok=True,
+    dag=dag
 )
 
 load_kaggle_task = PythonOperator(
