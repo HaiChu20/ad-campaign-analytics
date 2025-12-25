@@ -1,0 +1,106 @@
+models:
+  - name: stg_fb_ads_data
+    description: "Staging model for Facebook advertising data with derived metrics"
+    columns:
+      - name: ad_id
+        description: "Unique identifier for the ad"
+        tests:
+          - unique
+          - not_null
+      - name: campaign_id
+        description: "Campaign identifier (may be null for misaligned data)"
+      - name: fb_campaign_id
+        description: "Facebook campaign identifier (may be null for misaligned data)"
+      - name: age
+        description: "Age group of the target audience"
+        tests:
+          - not_null
+      - name: gender
+        description: "Gender of the target audience"
+        tests:
+          - not_null
+      - name: impressions
+        description: "Number of times the ad was shown"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: clicks
+        description: "Number of clicks on the ad"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: spent
+        description: "Amount spent on the ad"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: total_conversion
+        description: "Total number of conversions"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: approved_conversion
+        description: "Number of approved conversions"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: ctr
+        description: "Click-through rate (clicks/impressions)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+      - name: cpc
+        description: "Cost per click"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: cpm
+        description: "Cost per 1000 impressions"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: conversion_rate
+        description: "Conversion rate (approved conversions/clicks)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 2
+              inclusive: true
+      - name: approval_rate
+        description: "Approval rate (approved conversions/total conversions)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+      - name: reporting_start_date
+        description: "Start date of the reporting period"
+        tests:
+          - not_null
+      - name: reporting_end_date
+        description: "End date of the reporting period"
+        tests:
+          - not_null
+      - name: interest_combination
+        description: "Combined interest categories"
+        tests:
+          - not_null
+      - name: campaign_duration_days
+        description: "Duration of the campaign in days"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true

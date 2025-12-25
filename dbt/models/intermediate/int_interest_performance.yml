@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: int_interest_performance
+    description: "Performance analysis by interest combinations"
+    columns:
+      - name: interest_combination
+        description: "Combined interest categories"
+        data_tests:
+          - not_null
+      - name: avg_ctr
+        description: "Average click-through rate for this interest combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
+      - name: avg_conversion_rate
+        description: "Average conversion rate for this interest combination"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
+      - name: volume_category
+        description: "Volume category (High/Medium/Low)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['High Volume', 'Medium Volume', 'Low Volume']
+      - name: ctr_category
+        description: "CTR performance category"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['High CTR', 'Medium CTR', 'Low CTR']

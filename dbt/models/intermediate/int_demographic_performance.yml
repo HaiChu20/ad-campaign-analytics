@@ -1,0 +1,84 @@
+version: 2
+
+models:
+  - name: int_demographic_performance
+    description: "Performance analysis by demographic segments (age and gender)"
+    columns:
+      - name: age
+        description: "Age group of the target audience"
+        data_tests:
+          - not_null
+      - name: gender
+        description: "Gender of the target audience"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['M', 'F']
+      - name: avg_ctr
+        description: "Average click-through rate for this demographic"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
+      - name: avg_conversion_rate
+        description: "Average conversion rate for this demographic"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
+      - name: conversions_per_dollar
+        description: "Number of conversions per dollar spent"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: ctr_rank
+        description: "Ranking by CTR performance"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: conversion_rank
+        description: "Ranking by conversion rate performance"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: efficiency_rank
+        description: "Ranking by efficiency (conversions per dollar)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: total_ads
+        description: "Total number of ads for this demographic"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: total_impressions
+        description: "Total impressions for this demographic"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+          

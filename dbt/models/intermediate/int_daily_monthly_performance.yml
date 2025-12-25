@@ -1,0 +1,124 @@
+version: 2
+
+models:
+  - name: int_daily_monthly_performance
+    description: "Daily performance analysis by day of month to identify most effective days"
+    columns:
+      - name: day_of_month
+        description: "Day of the month (1-31)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 31
+                inclusive: true
+      - name: month
+        description: "Month of the year (1-12)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 12
+                inclusive: true
+      - name: year
+        description: "Year of the reporting period"
+        data_tests:
+          - not_null
+      - name: day_of_week
+        description: "Day of the week (1=Sunday, 7=Saturday)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 7
+                inclusive: true
+      - name: day_name
+        description: "Name of the day of the week"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+      - name: avg_ctr
+        description: "Average click-through rate for this day"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
+      - name: avg_conversion_rate
+        description: "Average conversion rate for this day"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 2
+                inclusive: true
+      - name: conversions_per_dollar
+        description: "Number of conversions per dollar spent for this day"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: ctr_rank
+        description: "Ranking by CTR performance (1 = best)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: conversion_rank
+        description: "Ranking by conversion rate performance (1 = best)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: efficiency_rank
+        description: "Ranking by efficiency performance (1 = best)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: ctr_performance
+        description: "CTR performance category (High/Medium/Low CTR Day)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['High CTR Day', 'Medium CTR Day', 'Low CTR Day']
+      - name: conversion_performance
+        description: "Conversion performance category (High/Medium/Low Conversion Day)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['High Conversion Day', 'Medium Conversion Day', 'Low Conversion Day']
+      - name: total_ads
+        description: "Total number of ads for this day"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: total_impressions
+        description: "Total impressions for this day"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
