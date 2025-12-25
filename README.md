@@ -101,14 +101,6 @@ This layered presentation keeps the pipeline modular, testable, and easy to prom
 - **Authentication**: Service account-based authentication for GCP with automatic connection setup
 - **DAG Settings**: Disabled example DAGs, auto-unpaused new DAGs for immediate testing
 
-## Future Enhancements
-
-- [ ] dbt models for data transformation and aggregation
-- [ ] Additional data quality tests
-- [ ] Dashboard integration (Looker/Data Studio)
-- [ ] Multi-source data integration
-- [ ] Advanced analytics and KPI calculations
-
 ## Skills Demonstrated
 
 - Cloud data warehousing (Google BigQuery)
