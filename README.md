@@ -1,115 +1,134 @@
-# Ad Campaign Analytics Pipeline
+# Advertisement Campaign Analytics Pipeline
 
-An end-to-end data engineering project that automates the extraction, transformation, and analysis of advertising campaign data using modern data stack tools.
+---
 
-## Project Overview
+## Overview
 
-This project demonstrates a complete data pipeline that ingests advertising campaign data from Kaggle, loads it into Google BigQuery, and transforms it using dbt for analytics-ready insights.
+This project demonstrates a complete data pipeline that ingests advertising campaign data from Kaggle, loads it into Google BigQuery, and transforms it using dbt for analytics-ready insights. Raw data lands in a dedicated dataset; staging, intermediate, and mart models are built with dbt for reporting and BI.
+
+---
 
 ## Tech Stack & Tools
 
-- **Apache Airflow** - Workflow orchestration and scheduling
-- **Google BigQuery** - Cloud data warehouse for storage and querying
-- **dbt (Data Build Tool)** - Data transformation and modeling
-- **Docker** - Containerization for reproducible deployments
-- **Python** - ETL scripting and data processing
-- **Kaggle API** - Data source integration
+- **Apache Airflow** — Workflow orchestration and scheduling
+- **Google BigQuery** — Cloud data warehouse for storage and querying
+- **dbt (Data Build Tool)** — Data transformation and modeling
+- **Docker** — Containerization for reproducible deployments
+- **Python** — ETL scripting (Kaggle API, kagglehub, pandas)
+- **uv** — Fast Python dependency resolution (Dockerfile)
 
-## Key Features
+---
 
-### Data Engineering
-- **Automated Data Ingestion**: Weekly scheduled pipeline that extracts Facebook ad campaign data from Kaggle using the Kaggle API
-- **Cloud Data Warehousing**: Loads raw data into BigQuery with automatic schema detection and incremental loading
-- **Containerized Environment**: Fully Dockerized setup with custom Airflow image using `uv` for fast dependency management
-- **Infrastructure as Code**: Docker Compose configuration for easy deployment and environment replication
+## Architecture
 
-### Orchestration
-- **Apache Airflow DAG**: Orchestrates the entire ETL pipeline with proper task dependencies and error handling
-- **Scheduled Execution**: Automated weekly runs every Monday at 6 AM UTC
-- **Retry Logic**: Built-in fault tolerance with configurable retry attempts and delays
-- **Monitoring & Logging**: Complete task execution tracking through Airflow UI
+Data flows from Kaggle (CSV) into an Airflow DAG, which creates the BigQuery raw dataset and loads the file. dbt then builds staging, intermediate, and mart tables in BigQuery for analytics.
 
-### Data Pipeline Architecture
-- **Raw Data Layer**: Initial data landing zone in BigQuery (`ad_campaign_raw` dataset)
-- **dbt Transformations**: (In progress) Data modeling layer for creating analytics-ready tables
-- **Authentication Management**: Secure credential handling for Google Cloud and Kaggle APIs using environment variables
-- **Modular Design**: Separated concerns with dedicated folders for DAGs, BigQuery scripts, and dbt models
-
-## Data layers & presentation 
-
-We use a layered data presentation to separate responsibilities and make testing, lineage, and access control straightforward.
-
-- **Raw / Landing (`ad_campaign_raw`)**
-	- Raw source payloads as ingested from Kaggle. Minimal changes (autodetect schema, append) and original metadata preserved for replayability.
-
-- **Staging (`stg_` models / `ad_campaign_staging`)**
-	- Lightweight cleaning and normalization (types, timestamps, deduplication, canonical column names). Staging models are the single source for downstream transformations.
-	- Typical dbt materialization: table or incremental table. Standard tests: `not_null`, `unique`, `accepted_values`.
-
-- **Intermediate (`int_` models / `ad_campaign_intermediate`)**
-	- Enrichment and denormalization for complex logic and intermediate aggregations. Materialized as persisted (often incremental) tables partitioned by date for performance.
-
-- **Mart (`mart_` models / `ad_campaign_mart`)**
-	- Analytics-ready tables (facts and dimensions) optimized for reporting and dashboards. Strong schema contracts, partitioning, clustering and access controls applied.
-	- Changes to marts require CI (dbt tests) and a documented migration plan when breaking schema changes are introduced.
-
-Conventions:
-
-- Prefix dbt models with `stg_`, `int_`, or `mart_` and store mart models in `ad_campaign_mart` dataset.
-- Prefer date partitioning and clustering for mart tables to optimize cost and performance.
-- Use dbt tests and snapshots for SCDs; include owner and short description in model docs.
-
-This layered presentation keeps the pipeline modular, testable, and easy to promote through `model` → `intermediate` → `staging` → `main`.
-
-## Technical Implementation
-
-### Pipeline Components
-1. **Dataset Creation**: Automatically provisions BigQuery datasets if they don't exist
-2. **Data Loading**: Python-based ETL script using `kagglehub` and Google Cloud BigQuery client libraries
-3. **Error Handling**: Graceful failure handling with detailed logging for troubleshooting
-4. **Environment Configuration**: Centralized configuration through environment variables and dbt profiles
-
-### Development Practices
-- **Version Control**: Git-tracked project with proper `.gitignore` for sensitive credentials
-- **Volume Mounting**: Live code reloading during development without rebuilding containers
-- **Python Path Management**: Custom PYTHONPATH configuration for seamless module imports
-- **Dependency Management**: Modern Python packaging with `pyproject.toml` and `uv` compiler
+```mermaid
+flowchart LR
+  subgraph source[" "]
+    K[Kaggle CSV]
+  end
+  subgraph orchestration[" "]
+    A[Airflow DAG]
+  end
+  subgraph warehouse["BigQuery"]
+    R[raw.campaigns]
+    S[stg_fb_ads_data]
+    I[int_*]
+    M[mart_daily_performance]
+  end
+  K --> A
+  A --> R
+  R --> S
+  S --> I
+  I --> M
+  M --> BI[Analytics / BI]
+```
+---
 
 ## Project Structure
 
 ```
-├── dags/                      # Airflow DAG definitions
+├── dags/                          # Airflow DAG definitions
 │   └── ad_campaign_pipeline.py
-├── bigquery/                  # BigQuery ETL scripts
+├── bigquery/                      # BigQuery ETL scripts
 │   └── load_kaggle_data.py
-├── dbt/                       # dbt project (transformations coming soon)
+├── dbt/                           # dbt project
 │   ├── models/
+│   │   ├── staging/               # Sources + stg_fb_ads_data
+│   │   ├── intermediate/         # int_campaign_*, int_daily_*, int_demographic_*, int_interest_*
+│   │   └── marts/                # mart_daily_performance
+│   ├── macros/                   # fix_shifted_rows, performance_metrics
 │   ├── profiles.yml
+│   ├── packages.yml              # dbt_utils
 │   └── dbt_project.yml
-├── keys/                      # Credentials (gitignored)
-│   ├── gcp-service-account.json
-│   └── kaggle.json
-├── docker-compose.yml         # Service orchestration
-├── Dockerfile                 # Custom Airflow image
-└── pyproject.toml            # Python dependencies
+├── keys/                          # Credentials (gitignored)
+├── docker-compose.yml
+├── Dockerfile
+├── pyproject.toml
+└── script.sh                      # Run commands in container
 ```
 
-## 🔧 Configuration Highlights
+---
 
-- **Airflow**: Sequential executor with SQLite backend for lightweight local development
-- **BigQuery Location**: EU region with configurable location settings
-- **Authentication**: Service account-based authentication for GCP with automatic connection setup
-- **DAG Settings**: Disabled example DAGs, auto-unpaused new DAGs for immediate testing
+## Prerequisites
+
+- **Docker** and **Docker Compose**
+- **Google Cloud** account with BigQuery enabled
+- **GCP service account** JSON (BigQuery Data Editor) and **Kaggle** API token (`kaggle.json`)
+
+---
+
+## Getting Started
+
+1. **Credentials** — Place under `keys/` (gitignored): `keys/gcp-service-account.json`, `keys/kaggle.json`
+
+2. **dbt connection** — Edit `dbt/profiles.yml` and set `project` (GCP project ID) and `dataset` (e.g. `ad_campaign_analytics`). The loader reads the project from this file.
+
+3. **Start the pipeline**
+   ```bash
+   docker compose up --build
+   ```
+   Open **http://localhost:8080** (login: `admin` / `admin`). Unpause the DAG **`ad_campaign_data_pipeline`** and trigger a run to load raw data into BigQuery.
+
+4. **Run dbt** (after at least one successful ingestion)
+   ```bash
+   docker compose run --rm airflow dbt deps   --project-dir /opt/dbt --profiles-dir /opt/dbt
+   docker compose run --rm airflow dbt run   --project-dir /opt/dbt --profiles-dir /opt/dbt
+   docker compose run --rm airflow dbt test --project-dir /opt/dbt --profiles-dir /opt/dbt
+   ```
+   On Linux/macOS: `./script.sh dbt run --project-dir /opt/dbt --profiles-dir /opt/dbt`. On Windows use Git Bash/WSL or the commands above.
+
+---
+
+## Data Layers & Presentation
+
+- **Raw (`ad_campaign_raw.campaigns`)** — Payloads from Kaggle; append, schema autodetect.
+- **Staging (`stg_fb_ads_data`)** — Cleaning (fix shifted rows), derived metrics (CTR, CPC, CPM, conversion rates). Single source for downstream.
+- **Intermediate (`int_*`)** — Aggregations by campaign, day+gender, demographic, interest; reusable macros.
+- **Mart (`mart_daily_performance`)** — Analytics-ready: daily performance, monthly benchmarks, tiers, optimization recommendations.
+
+**Conventions:** Prefix models `stg_`, `int_`, `mart_`; use dbt tests and docs in YAML.
+
+---
+
+## Key Features
+
+- **Automated ingestion** — Weekly DAG (Mon 6 AM UTC): dataset creation + Kaggle → BigQuery (append, autodetect).
+- **Layered dbt models** — Staging → intermediate → mart with tests and macros; idempotent runs.
+- **Containerized** — Docker Compose + custom Airflow image (uv, pyproject.toml); volume mounts for live code.
+- **Auth & config** — GCP and Kaggle credentials via `keys/`; dbt profile for project/dataset.
+
+---
 
 ## Skills Demonstrated
 
-- Cloud data warehousing (Google BigQuery)
-- Workflow orchestration (Apache Airflow)
-- Containerization and DevOps (Docker)
-- Python programming and scripting
-- ETL/ELT pipeline design
-- API integration (Kaggle, Google Cloud)
-- Infrastructure as Code
-- Modern data stack tooling
+- Cloud data warehousing (BigQuery) · Workflow orchestration (Airflow) · Containerization (Docker)
+- ETL/ELT design · API integration (Kaggle, GCP) · Infrastructure as Code
+- dbt (layered models, tests, macros) · Data modeling and documentation
 
+---
 
+## License
+
+Use and adapt as needed for your environment.
