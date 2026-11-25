@@ -1,12 +1,6 @@
-# Advertisement Campaign Analytics Pipeline
+# Ad Campaign Analytics
 
----
-
-## Overview
-
-This project demonstrates a complete data pipeline that ingests advertising campaign data from Kaggle, loads it into Google BigQuery, and transforms it using dbt for analytics-ready insights. Raw data lands in a dedicated dataset; staging, intermediate, and mart models are built with dbt for reporting and BI.
-
----
+Analyze daily advertising campaign performance with a reporting mart in BigQuery. An Airflow DAG loads raw Kaggle data into BigQuery, and dbt builds the staging, intermediate, and reporting models.
 
 ## Tech Stack & Tools
 
